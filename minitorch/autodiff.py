@@ -22,7 +22,9 @@ def central_difference(f: Any, *vals: Any, arg: int = 0, epsilon: float = 1e-6) 
     Returns:
         An approximation of $f'_i(x_0, \ldots, x_{n-1})$
     """
-    raise NotImplementedError("Need to include this file from past assignment.")
+    plus_epsilon = vals[:arg] + (vals[arg] + (epsilon / 2),) + vals[arg + 1 :]
+    minus_epsilon = vals[:arg] + (vals[arg] - (epsilon / 2),) + vals[arg + 1 :]
+    return (f(*plus_epsilon) - f(*minus_epsilon)) / epsilon
 
 
 variable_count = 1
@@ -51,30 +53,31 @@ class Variable(Protocol):
 
 
 def topological_sort(variable: Variable) -> Iterable[Variable]:
-    """
-    Computes the topological order of the computation graph.
-
-    Args:
-        variable: The right-most variable
-
-    Returns:
-        Non-constant Variables in topological order starting from the right.
-    """
-    raise NotImplementedError("Need to include this file from past assignment.")
+    marked: set[int] = set()
+    ordered: list[Variable] = []
+    def visit(s: Variable) -> None:
+        if s.unique_id in marked or s.is_constant():
+            return
+        for v in s.parents:
+            visit(v)
+        marked.add(s.unique_id)
+        ordered.insert(0, s)
+    visit(variable)
+    return ordered
 
 
 def backpropagate(variable: Variable, deriv: Any) -> None:
-    """
-    Runs backpropagation on the computation graph in order to
-    compute derivatives for the leave nodes.
-
-    Args:
-        variable: The right-most variable
-        deriv  : Its derivative that we want to propagate backward to the leaves.
-
-    No return. Should write to its results to the derivative values of each leaf through `accumulate_derivative`.
-    """
-    raise NotImplementedError("Need to include this file from past assignment.")
+    visit_list = topological_sort(variable)
+    int_derivs: dict[int, float] = {variable.unique_id: deriv}
+    def add_deriv(id: int, d: float) -> None:
+        int_derivs[id] = int_derivs.get(id, 0) + d
+    for v in visit_list:
+        if v.is_leaf():
+            v.accumulate_derivative(int_derivs[v.unique_id])
+        else:
+            vars_and_derivs = v.chain_rule(int_derivs[v.unique_id])
+            for v2, d2 in vars_and_derivs:
+                add_deriv(v2.unique_id, d2)
 
 
 @dataclass

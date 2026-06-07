@@ -5,17 +5,23 @@ Be sure you have minitorch installed in you Virtual Env.
 import random
 
 import minitorch
-
+NUM_LAYERS = 6
 
 class Network(minitorch.Module):
     def __init__(self, hidden_layers):
         super().__init__()
-        raise NotImplementedError("Need to include this file from past assignment.")
+        setattr(self, "layer1", Linear(2, hidden_layers))
+        for i in range(NUM_LAYERS - 1):
+            setattr(self, f"layer{i + 2}", Linear(hidden_layers, hidden_layers))
+        setattr(self, f"layer{NUM_LAYERS + 1}", Linear(hidden_layers, 1))
 
     def forward(self, x):
-        middle = [h.relu() for h in self.layer1.forward(x)]
-        end = [h.relu() for h in self.layer2.forward(middle)]
-        return self.layer3.forward(end)[0].sigmoid()
+        res = x
+        # eg for 4 layers, 0,1 => 1,2
+        for i in range(NUM_LAYERS - 2):
+            res = [h.relu() for h in getattr(self, f"layer{i + 1}").forward(res)]
+        end = [h.relu() for h in self.__getattr__(f"layer{NUM_LAYERS-1}").forward(res)]
+        return self.__getattr__(f"layer{NUM_LAYERS}").forward(end)[0].sigmoid()
 
 
 class Linear(minitorch.Module):
@@ -39,7 +45,13 @@ class Linear(minitorch.Module):
             )
 
     def forward(self, inputs):
-        raise NotImplementedError("Need to include this file from past assignment.")
+        outputs = []
+        for j in range(len(self.bias)):
+            total = self.bias[j].value
+            for i, x in enumerate(inputs):
+                total = total + x * self.weights[i][j].value
+            outputs.append(total)
+        return outputs
 
 
 def default_log_fn(epoch, total_loss, correct, losses):
