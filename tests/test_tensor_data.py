@@ -60,6 +60,7 @@ def test_enumeration(tensor_data: TensorData) -> None:
 @pytest.mark.task2_1
 @given(tensor_data())
 def test_index(tensor_data: TensorData) -> None:
+    print(tensor_data.shape, tensor_data.strides, tensor_data.size)
     "Test enumeration of tensor_data."
     # Check that all indices are within the size.
     for ind in tensor_data.indices():

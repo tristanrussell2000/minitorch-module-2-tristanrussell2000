@@ -31,38 +31,15 @@ UserStrides: TypeAlias = Sequence[int]
 
 
 def index_to_position(index: Index, strides: Strides) -> int:
-    """
-    Converts a multidimensional tensor `index` into a single-dimensional position in
-    storage based on strides.
-
-    Args:
-        index : index tuple of ints
-        strides : tensor strides
-
-    Returns:
-        Position in storage
-    """
-
-    # TODO: Implement for Task 2.1.
-    raise NotImplementedError("Need to implement for Task 2.1")
+    return int(np.sum(index * strides))
 
 
 def to_index(ordinal: int, shape: Shape, out_index: OutIndex) -> None:
-    """
-    Convert an `ordinal` to an index in the `shape`.
-    Should ensure that enumerating position 0 ... size of a
-    tensor produces every index exactly once. It
-    may not be the inverse of `index_to_position`.
-
-    Args:
-        ordinal: ordinal position to convert.
-        shape : tensor shape.
-        out_index : return index corresponding to position.
-
-    """
-    # TODO: Implement for Task 2.1.
-    raise NotImplementedError("Need to implement for Task 2.1")
-
+    cur_ordinal = ordinal
+    for i in range(len(shape) - 1, -1, -1):
+        sh = shape[i]
+        out_index[i] = cur_ordinal % sh
+        cur_ordinal = cur_ordinal // sh
 
 def broadcast_index(
     big_index: Index, big_shape: Shape, shape: Shape, out_index: OutIndex
@@ -222,8 +199,9 @@ class TensorData:
             range(len(self.shape))
         ), f"Must give a position to each dimension. Shape: {self.shape} Order: {order}"
 
-        # TODO: Implement for Task 2.1.
-        raise NotImplementedError("Need to implement for Task 2.1")
+        new_shape = self._shape[np.array(list(order))]
+        new_strides = self._strides[np.array(list(order))]
+        return TensorData(self._storage, tuple(list(new_shape)), tuple(list(new_strides)))
 
     def to_string(self) -> str:
         s = ""
