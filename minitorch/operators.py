@@ -63,6 +63,9 @@ def inv_back(x: float, y: float) -> float:
 def log_back(x: float, y: float) -> float:
     return y / x
 
+def sigmoid_back(x: float, y: float) -> float:
+    return y * sigmoid(x) * (1- sigmoid(x))
+
 def lt(x: float, y: float) -> float:
     return 1.0 if x < y else 0.0
 

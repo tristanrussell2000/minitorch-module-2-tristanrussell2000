@@ -219,7 +219,11 @@ class TensorData:
 
         new_shape = self._shape[np.array(list(order))]
         new_strides = self._strides[np.array(list(order))]
-        return TensorData(self._storage, tuple(list(new_shape)), tuple(list(new_strides)))
+        return TensorData(
+            self._storage,
+            tuple(int(x) for x in new_shape),
+            tuple(int(x) for x in new_strides),
+        )
 
     def to_string(self) -> str:
         s = ""
