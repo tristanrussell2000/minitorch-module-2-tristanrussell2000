@@ -268,8 +268,15 @@ def tensor_map(fn: Callable[[float], float]) -> Any:
         in_shape: Shape,
         in_strides: Strides,
     ) -> None:
-        # TODO: Implement for Task 2.3.
-        raise NotImplementedError("Need to implement for Task 2.3")
+        out_size = np.prod(out_shape)
+        for i in range(out_size):
+            out_indices = np.array([0] * len(out_shape))
+            to_index(i, out_shape, out_indices)
+            in_indices = np.array([0] * len(in_shape))
+            broadcast_index(out_indices, out_shape, in_shape, in_indices)
+            out_index = index_to_position(out_indices, out_strides)
+            in_index = index_to_position(in_indices, in_strides)
+            out[out_index] = fn(in_storage[in_index])
 
     return _map
 
@@ -318,8 +325,18 @@ def tensor_zip(fn: Callable[[float, float], float]) -> Any:
         b_shape: Shape,
         b_strides: Strides,
     ) -> None:
-        # TODO: Implement for Task 2.3.
-        raise NotImplementedError("Need to implement for Task 2.3")
+        out_size = np.prod(out_shape)
+        for i in range(out_size):
+            out_indices = np.array([0] * len(out_shape))
+            to_index(i, out_shape, out_indices)
+            a_indices = np.array([0] * len(a_shape))
+            b_indices = np.array([0] * len(b_shape))
+            broadcast_index(out_indices, out_shape, a_shape, a_indices)
+            broadcast_index(out_indices, out_shape, b_shape, b_indices)
+            out_index = index_to_position(out_indices, out_strides)
+            a_index = index_to_position(a_indices, a_strides)
+            b_index = index_to_position(b_indices, b_strides)
+            out[out_index] = fn(a_storage[a_index], b_storage[b_index])
 
     return _zip
 
@@ -354,8 +371,15 @@ def tensor_reduce(fn: Callable[[float, float], float]) -> Any:
         a_strides: Strides,
         reduce_dim: int,
     ) -> None:
-        # TODO: Implement for Task 2.3.
-        raise NotImplementedError("Need to implement for Task 2.3")
+        a_size = np.prod(a_shape)
+        for i in range(a_size):
+            a_indices = np.array([0] * len(a_shape))
+            to_index(i, a_shape, a_indices)
+            out_indices = np.array([0] * len(out_shape))
+            broadcast_index(a_indices, a_shape, out_shape, out_indices)
+            out_index = index_to_position(out_indices, out_strides)
+            a_index = index_to_position(a_indices, a_strides)
+            out[out_index] = fn(a_storage[a_index], out[out_index])
 
     return _reduce
 

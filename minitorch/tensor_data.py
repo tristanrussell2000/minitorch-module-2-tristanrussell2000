@@ -61,7 +61,7 @@ def broadcast_index(
         None
     """
     offset = len(big_shape) - len(shape)
-    out = []
+    out = [0] * len(shape)
     for i in range(len(shape)):
         out[i] = 0 if shape[i] == 1 else big_index[i + offset]
     out_index[:] = out
